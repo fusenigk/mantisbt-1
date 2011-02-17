@@ -51,6 +51,21 @@ $l_oServer->wsdl->addComplexType(
 	'xsd:string'
 );
 
+### IntegerArray
+$l_oServer->wsdl->addComplexType(
+	'IntegerArray',
+	'complexType',
+	'array',
+	'',
+	'SOAP-ENC:Array',
+	array(),
+	array(array(
+		'ref'				=> 'SOAP-ENC:arrayType',
+		'wsdl:arrayType'	=> 'xsd:integer[]'
+	)),
+	'xsd:integer'
+);
+
 ### ObjectRef
 $l_oServer->wsdl->addComplexType(
 	'ObjectRef',
@@ -447,6 +462,80 @@ $l_oServer->wsdl->addComplexType(
 	)),
 	'tns:FilterData'
 );
+
+### SortDirection
+$l_oServer->wsdl->addSimpleType(
+    'SortDirection',
+    'xsd:string',
+    'simpleType',
+    'scalar',
+    array ('ASC', 'DESC')
+);
+
+### Interval
+$l_oServer->wsdl->addComplexType(
+    'Interval',
+    'complexType',
+    'struct',
+	'all',
+    '',
+    array (
+        'from'	=> array( 'name' => 'from',     'type' => 'xsd:date', 'minOccurs' => '1', 'maxOccurs' => 1),
+    	'to'	=> array( 'name' => 'to',     	'type' => 'xsd:date', 'minOccurs' => '1', 'maxOccurs' => 1)
+    )
+);
+
+### RelationshipFilter
+$l_oServer->wsdl->addComplexType(
+    'RelationshipFilter',
+    'complexType',
+    'struct',
+	'all',
+    '',
+    array (
+        'type_id'	=> array( 'name' => 'type_id',     'type' => 'xsd:integer', 'minOccurs' => '1', 'maxOccurs' => 1),
+    	'target_id'	=> array( 'name' => 'target_id',   'type' => 'xsd:integer', 'minOccurs' => '1', 'maxOccurs' => 1)
+    )
+);
+
+### FilterSearchData
+$l_oServer->wsdl->addComplexType(
+	'FilterSearchData',
+	'complexType',
+	'struct',
+	'all',
+	'',
+	array(
+		'project_id'	    =>	array( 'name' => 'projectId',		'type' => 'xsd:Integer', 			'minOccurs' => '1' ),
+		'category_id'	    =>	array( 'name' => 'category_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'free_text'	        =>	array( 'name' => 'free_text',		'type' => 'xsd:string', 			'minOccurs' => '0' ),
+    	'reporter_id'	    =>	array( 'name' => 'reporter_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+	    'handler_id'        =>	array( 'name' => 'handler_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+	    'note_user_id'	    =>  array( 'name' => 'note_user_id',	'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+    	'status_id'		    =>	array( 'name' => 'status_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'priority_id'	    =>	array( 'name' => 'priority_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'severity_id'	    =>  array( 'name' => 'severity_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'resolution_id'	    =>  array( 'name' => 'resolution_id',	'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+	    'priority_id'	    =>  array( 'name' => 'priority_id',    	'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'view_state_id'	    =>  array( 'name' => 'view_state_id',   'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+	    'show_sticky'       =>  array( 'name' => 'show_sticky',   	'type' => 'xsd:boolean', 			'minOccurs' => '0' ),
+	    'product_version'   =>  array( 'name' => 'product_version', 'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'product_build'  	=>  array( 'name' => 'product_build',   'type' => 'xsd:string', 			'minOccurs' => '0' ),
+		'fixed_in_version'  =>  array( 'name' => 'fixed_in_version','type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+	    'target_version'    =>  array( 'name' => 'target_version',	'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'not_assigned'      =>  array( 'name' => 'not_assigned',	'type' => 'xsd:boolean', 			'minOccurs' => '0' ),
+		'platform'          =>  array( 'name' => 'platform',    	'type' => 'xsd:string', 			'minOccurs' => '0' ),	
+		'os' 		        =>  array( 'name' => 'os',    			'type' => 'xsd:string', 			'minOccurs' => '0' ),	
+		'os_version'        =>  array( 'name' => 'os_build',    	'type' => 'xsd:string', 			'minOccurs' => '0' ),
+	    'relationship'		=>  array( 'name' => 'relationship',    'type' => 'tns:RelationshipFilter',	'minOccurs' => '0' ),
+		'tag'      		    =>  array( 'name' => 'tag',            	'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
+		'sort_field_name'   =>  array( 'name' => 'sort_field_name',	'type' => 'xsd:string', 			'minOccurs' => '0' ),
+		'sort_direction'    =>  array( 'name' => 'sort_direction',	'type' => 'tns:SortDirection', 		'minOccurs' => '0' ),
+		'interval'          =>  array( 'name' => 'interval',		'type' => 'tns:Interval', 			'minOccurs' => '0' ),
+		'issues_per_page'   =>  array( 'name' => 'issues_per_page',	'type' => 'xsd:integer', 			'minOccurs' => '1' )
+	)
+);
+
 
 ### CustomFieldDefinitionData
 $l_oServer->wsdl->addComplexType(
@@ -1405,6 +1494,36 @@ $l_oServer->register( 'mc_filter_get_issue_headers',
 	$t_namespace,
 	false, false, false,
 	'Get the issue headers that match the specified filter and paging details.'
+);
+
+### mc_filter_search_issue_headers
+$l_oServer->register( 'mc_filter_search_issue_headers',
+	array(
+		'username'		=>	'xsd:string',
+		'password'		=>	'xsd:string',
+		'filter'	    =>	'tns:FilterSearchData'
+	),
+	array(
+		'return' => 'tns:IssueHeaderDataArray'
+	),
+	$t_namespace,
+	false, false, false,
+	'Get the issue headers that match the specified filter data.'
+);
+
+### mc_filter_search_issues
+$l_oServer->register( 'mc_filter_search_issues',
+	array(
+		'username'		=>	'xsd:string',
+		'password'		=>	'xsd:string',
+		'filter'	    =>	'tns:FilterSearchData'
+	),
+	array(
+		'return' => 'tns:IssueDataArray'
+	),
+	$t_namespace,
+	false, false, false,
+	'Get the issues that match the specified filter data.'
 );
 
 ### mc_config_get_string

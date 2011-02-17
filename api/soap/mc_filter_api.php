@@ -140,3 +140,13 @@ function mc_filter_get_issue_headers( $p_username, $p_password, $p_project_id, $
 
 	return $t_result;
 }
+
+function mc_filter_search_issue_headers( $p_username, $p_password, $p_filter_search ) {
+    
+    return new soap_fault('Server', '', 'Not implemented');
+}
+
+function mc_filter_search_issues( $p_username, $p_password, $p_filter_search ) {
+    
+    return new soap_fault('Server', '', 'Not implemented');
+}
