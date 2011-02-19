@@ -6,6 +6,13 @@
 # change the license of future releases.
 # See docs/ folder for more details
 
+$_SOAP_API_TO_FILTER_API_NAMES = array (
+	'project_id' => FILTER_PROPERTY_PROJECT_ID,
+    'category_id' => array ( FILTER_PROPERTY_CATEGORY_ID, 'category_get_name'),
+    'severity_id' => FILTER_PROPERTY_SEVERITY
+);
+
+
 /**
  * Get all user defined issue filters for the given project.
  *
@@ -111,31 +118,7 @@ function mc_filter_get_issue_headers( $p_username, $p_password, $p_project_id, $
 	$t_rows = filter_get_bug_rows( $p_page_number, $p_per_page, $t_page_count, $t_bug_count, $t_filter, $p_project_id );
 
 	foreach( $t_rows as $t_issue_data ) {
-		$t_id = $t_issue_data->id;
-
-		$t_issue = array();
-
-		$t_issue['id'] = $t_id;
-		$t_issue['view_state'] = $t_issue_data->view_state;
-		$t_issue['last_updated'] = timestamp_to_iso8601( $t_issue_data->last_updated );
-
-		$t_issue['project'] = $t_issue_data->project_id;
-		$t_issue['category'] = mci_get_category( $t_issue_data->category_id );
-		$t_issue['priority'] = $t_issue_data->priority;
-		$t_issue['severity'] = $t_issue_data->severity;
-		$t_issue['status'] = $t_issue_data->status;
-
-		$t_issue['reporter'] = $t_issue_data->reporter_id;
-		$t_issue['summary'] = $t_issue_data->summary;
-		if( !empty( $t_issue_data->handler_id ) ) {
-			$t_issue['handler'] = $t_issue_data->handler_id;
-		}
-		$t_issue['resolution'] = $t_issue_data->resolution;
-
-		$t_issue['attachments_count'] = count( mci_issue_get_attachments( $t_issue_data->id ) );
-		$t_issue['notes_count'] = count( mci_issue_get_notes( $t_issue_data->id ) );
-
-		$t_result[] = $t_issue;
+		$t_result[] = mci_issue_data_as_header_array( $t_issue_data );
 	}
 
 	return $t_result;
@@ -143,7 +126,68 @@ function mc_filter_get_issue_headers( $p_username, $p_password, $p_project_id, $
 
 function mc_filter_search_issue_headers( $p_username, $p_password, $p_filter_search ) {
     
-    return new soap_fault('Server', '', 'Not implemented');
+    global $_SOAP_API_TO_FILTER_API_NAMES;
+    
+	$t_user_id = mci_check_login( $p_username, $p_password );
+
+	if( $t_user_id === false ) {
+		return mci_soap_fault_login_failed();
+	}
+
+	$t_project_id = $p_filter_search['project_id'];
+	
+	log_event( LOG_SOAP, 'Searching issue headers for project with id ' . $t_project_id . ' .' );
+	
+	if( !mci_has_readonly_access( $t_user_id, $t_project_id  ) ) {
+		return mci_soap_fault_access_denied( $t_user_id );
+	}
+	
+	// we emulate the simple filter type, for now
+	// the main difficulty is in matching category ids to project ids, in case of multiple
+	// chosen projects
+	$t_filter = array( '_view_type' => 'simple');
+	
+	// TODO: filter public/private issues based on access
+	foreach ( $_SOAP_API_TO_FILTER_API_NAMES as $t_soap_name => $t_filter_name ) {
+    	if ( isset ( $p_filter_search[$t_soap_name]) ) {
+    	    
+    	    log_event( LOG_SOAP, 'Extracting parameter for ' . $t_soap_name );
+    	    
+    	    if ( is_array($t_filter_name) ) {
+    	        list( $t_real_filter_name, $callback ) = $t_filter_name;
+    	        
+    	        log_event( LOG_SOAP, 'Parameter requires callback, using ' . $callback . ' .' );
+    	        
+    	        $t_filter_values = array();
+    	        foreach ( $p_filter_search[$t_soap_name] as $t_soap_name_i ) {
+    	            log_event( LOG_SOAP, 'Applying callback to ' . $t_soap_name_i . ' .');
+    	            $t_filter_values[] = call_user_func( $callback, $t_soap_name_i );
+    	        }
+    	        
+    	        $t_filter[$t_real_filter_name] = $t_filter_values;
+    	    } else { 
+    	        
+    	        $t_value = $p_filter_search[$t_soap_name];
+    	        log_event( LOG_SOAP, 'Simple extraction, value is ' . print_r($t_value, true) . ' .' );
+        	    $t_filter[$t_filter_name] = $t_value;
+    	    }
+    	}   
+	}
+	
+	$t_filter = filter_ensure_valid_filter( $t_filter );
+	
+	$t_result = array();
+	$t_page_number = 0;
+	$t_per_page = $p_filter_search['issues_per_page'];
+	$t_page_count = 0;
+	$t_bug_count = 0;
+	$t_rows = filter_get_bug_rows( $t_page_number, $t_per_page, $t_page_count, $t_bug_count, $t_filter );
+
+	foreach( $t_rows as $t_issue_data ) {
+		$t_result[] = mci_issue_data_as_header_array( $t_issue_data );
+	}
+
+	return $t_result;
 }
 
 function mc_filter_search_issues( $p_username, $p_password, $p_filter_search ) {

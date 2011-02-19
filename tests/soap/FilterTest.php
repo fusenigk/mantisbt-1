@@ -210,4 +210,78 @@ class FilterTest extends SoapBase {
 			0,
 			50);
 	}
+	
+	public function testCustomSearchProjectIssuesWithMatchingResult() {
+	    
+		$issueToAdd = $this->getIssueToAdd( 'FilterTest.testCustomSearchProjectIssuesWithMatchingResult' );
+
+		$issueId = $this->client->mc_issue_add(
+			$this->userName,
+			$this->password,
+			$issueToAdd);
+			
+		$this->deleteAfterRun( $issueId );
+		
+		$filter = array('project_id' => $this->getProjectId() , 'issues_per_page' => 100 );
+		
+		$searchResult = $this->client->mc_filter_search_issue_headers($this->userName, $this->password, $filter);
+		
+		self::assertEquals(1, sizeof($searchResult));
+	}
+	
+	public function testCustomSearchByCategory() {
+	    
+		$issueToAdd = $this->getIssueToAdd( 'FilterTest.testCustomSearchByCategory' );
+
+		$issueId = $this->client->mc_issue_add(
+			$this->userName,
+			$this->password,
+			$issueToAdd);
+			
+		$this->deleteAfterRun( $issueId );
+		
+		$filter = array('project_id' => $this->getProjectId(), 'category_id' => array ( $this->getCategoryId() ), 'issues_per_page' => 100 );
+		
+		$searchResult = $this->client->mc_filter_search_issue_headers($this->userName, $this->password, $filter);
+		
+		self::assertEquals(1, sizeof($searchResult));
+	}
+	
+	public function testCustomSearchBySeverity() {
+	    
+		$issueToAdd = $this->getIssueToAdd( 'FilterTest.testCustomSearchBySeverity' );
+		$issueToAdd['severity'] = array ( 'id' => BLOCK );
+
+		$issueId = $this->client->mc_issue_add(
+			$this->userName,
+			$this->password,
+			$issueToAdd);
+			
+		$this->deleteAfterRun( $issueId );
+		
+		$filter = array('project_id' => $this->getProjectId(), 'severity_id' => array ( BLOCK ), 'issues_per_page' => 100 );
+		
+		$searchResult = $this->client->mc_filter_search_issue_headers($this->userName, $this->password, $filter);
+		
+		self::assertEquals(1, sizeof($searchResult));
+	}
+	
+	public function testCustomSearchBySeverityNoResults() {
+	    
+		$issueToAdd = $this->getIssueToAdd( 'FilterTest.testCustomSearchBySeverity' );
+		$issueToAdd['severity'] = array ( 'id' => BLOCK );
+
+		$issueId = $this->client->mc_issue_add(
+			$this->userName,
+			$this->password,
+			$issueToAdd);
+			
+		$this->deleteAfterRun( $issueId );
+		
+		$filter = array('project_id' => $this->getProjectId(), 'severity_id' => array ( CRASH ), 'issues_per_page' => 100 );
+		
+		$searchResult = $this->client->mc_filter_search_issue_headers($this->userName, $this->password, $filter);
+		
+		self::assertEquals(0, sizeof($searchResult));
+	}		
 }
