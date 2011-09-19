@@ -506,7 +506,7 @@ $l_oServer->wsdl->addComplexType(
 	'all',
 	'',
 	array(
-		'project_id'	    =>	array( 'name' => 'projectId',		'type' => 'xsd:Integer', 			'minOccurs' => '1' ),
+		'project_id'	    =>	array( 'name' => 'projectId',		'type' => 'xsd:integer', 			'minOccurs' => '1' ),
 		'category_id'	    =>	array( 'name' => 'category_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
 		'free_text'	        =>	array( 'name' => 'free_text',		'type' => 'xsd:string', 			'minOccurs' => '0' ),
     	'reporter_id'	    =>	array( 'name' => 'reporter_id',		'type' => 'tns:IntegerArray', 		'minOccurs' => '0' ),
